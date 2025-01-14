@@ -1,4 +1,4 @@
-# Project Name
+# Restful Web Services
 
 ## Description
 A brief description of what your project does.
@@ -12,7 +12,7 @@ A brief description of what your project does.
 ### Installation
 1. Clone the repository:
     ```sh
-    git clone https://github.com/your-username/your-repo-name.git
+    git clone [https://github.com/your-username/your-repo-name.git](https://github.com/Max2535/restful-web-services.git)
     ```
 2. Navigate to the project directory:
     ```sh
