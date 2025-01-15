@@ -1,6 +1,8 @@
 package com.max.restfulwebservices.service;
 
 import com.max.restfulwebservices.dao.User;
+import com.max.restfulwebservices.exception.ResourceException;
+import com.max.restfulwebservices.exception.UserNotFoundException;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -38,6 +40,21 @@ public class UserDaoService {
             }
         }
         return null;
+    }
+
+    public User getUserById(int id) {
+        return users.stream()
+                .filter(user -> user.getId().equals(id))
+                .findFirst()
+                .orElseThrow(() -> new UserNotFoundException("User not found with id " + id));
+    }
+
+    public User update(User user) {
+        if (user.getId() == null) {
+            throw new UserNotFoundException("User ID is required");
+        }
+        users.add(user);
+        return user;
     }
 
     public User deleteById(int id) {
