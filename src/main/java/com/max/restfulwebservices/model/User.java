@@ -1,12 +1,11 @@
-package com.max.restfulwebservices.dao;
+package com.max.restfulwebservices.model;
 
+import jakarta.validation.constraints.Past;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 
 import java.util.Date;
 
@@ -17,9 +16,9 @@ public class User {
     //@NotNull
     private  Integer id;
 
-    @NotEmpty
+    @Size(min = 2)
     private  String name;
 
-    @NotNull
+    @Past
     private Date birthDate;
 }

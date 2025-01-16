@@ -1,10 +1,15 @@
 package com.max.restfulwebservices.controller;
 
-import com.max.restfulwebservices.dao.User;
-import com.max.restfulwebservices.exception.UserNotFoundException;
+import com.max.restfulwebservices.model.User;
+import com.max.restfulwebservices.exception.ResourceNotFoundException;
 import com.max.restfulwebservices.service.UserDaoService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -12,8 +17,12 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.net.URI;
 import java.util.List;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 @RestController
 @RequestMapping("/api/v1")
+@Tag(name = "User API", description = "User Management Endpoints")
 public class UserController {
 
     @Autowired
@@ -21,15 +30,30 @@ public class UserController {
 
     //http://localhost:8080/api/v1/users
     @GetMapping("/users")
-    public List<User> retrieveAllUsers() {
+    @Operation(summary = "Retrieve all users", description = "Get a list of all users in the system.")
+    public List<User> getAllUsers() {
         return service.findAll();
     }
 
     //http://localhost:8080/api/v1/users/1
     @GetMapping("/users/{id}")
-    public User retrieveUser(@PathVariable int id) {
+    @Operation(summary = "Retrieve a user by ID", description = "Get details of a specific user by their ID.")
+    public EntityModel<User> getUserById(@PathVariable int id) {
         User user = service.getUserById(id);
-        return user;
+
+        // เพิ่มลิงก์ HATEOAS
+        EntityModel<User> resource = EntityModel.of(user);
+
+        // ลิงก์ไปยังตัวเอง (self)
+        WebMvcLinkBuilder linkToSelf = linkTo(methodOn(this.getClass()).getUserById(id));
+
+        // ลิงก์ไปยังรายการผู้ใช้ทั้งหมด
+        WebMvcLinkBuilder linkToUsers = linkTo(methodOn(this.getClass()).getAllUsers());
+
+        resource.add(linkToSelf.withSelfRel());
+        resource.add(linkToUsers.withRel("all-users"));
+
+        return resource;
     }
 
     //http://localhost:8080/api/v1/users
@@ -40,6 +64,7 @@ public class UserController {
     }
     */
     @PostMapping("/users")
+    //@SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<Object> createUser(@Valid @RequestBody User user) {
         User savedUser = service.save(user);
 
@@ -60,7 +85,7 @@ public class UserController {
     }
     */
     @PutMapping("/users/{id}")
-    public ResponseEntity<Object> updateUser(@Valid @RequestBody User user, @PathVariable int id) {
+    public User updateUser(@Valid @RequestBody User user, @PathVariable int id) {
         User updatedUser = service.update(user);
 
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
@@ -68,7 +93,7 @@ public class UserController {
             .buildAndExpand(updatedUser.getId())
             .toUri();
 
-        return ResponseEntity.created(location).build();
+        return updatedUser;
     }
 
     //http://localhost:8080/api/v1/users/1
@@ -76,7 +101,7 @@ public class UserController {
     public void deleteUser(@PathVariable int id) {
         User user = service.deleteById(id);
         if (user == null) {
-            throw new UserNotFoundException("id-" + id);
+            throw new ResourceNotFoundException("id-" + id);
         }
     }
 }
