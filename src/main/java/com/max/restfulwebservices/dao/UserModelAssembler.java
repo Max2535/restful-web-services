@@ -1,6 +1,8 @@
-package com.max.restfulwebservices.model;
+package com.max.restfulwebservices.dao;
+
 
 import com.max.restfulwebservices.controller.UserController;
+import  com.max.restfulwebservices.model.User;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.server.mvc.RepresentationModelAssemblerSupport;
 import org.springframework.stereotype.Component;

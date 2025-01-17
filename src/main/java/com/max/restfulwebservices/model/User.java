@@ -1,24 +1,27 @@
 package com.max.restfulwebservices.model;
 
-import jakarta.validation.constraints.Past;
-import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
-
-import java.util.Date;
-
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
+@Entity
+@Getter
+@Setter
+@Table(name = "users") // เปลี่ยนชื่อเป็น "users"
 public class User {
-    //@NotNull
-    private  Integer id;
 
-    @Size(min = 2)
-    private  String name;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String name;
+    private String email;
 
-    @Past
-    private Date birthDate;
+    public User() {}
+
+    public User(String name, String email) {
+        this.name = name;
+        this.email = email;
+    }
+
+    // Getters and Setters
 }

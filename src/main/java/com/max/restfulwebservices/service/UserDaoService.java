@@ -1,6 +1,6 @@
 package com.max.restfulwebservices.service;
 
-import com.max.restfulwebservices.model.User;
+import com.max.restfulwebservices.dao.User;
 import com.max.restfulwebservices.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Component;
 
@@ -15,9 +15,9 @@ public class UserDaoService {
     private static int usersCount = 3;
 
     static {
-        users.add(new User(1, "Adam", new Date()));
-        users.add(new User(2, "Eve", new Date()));
-        users.add(new User(3, "Jack Sparrow", new Date()));
+        users.add(new User(1, "Adam", new Date(), "password"));
+        users.add(new User(2, "Eve", new Date(), "password"));
+        users.add(new User(3, "Jack Sparrow", new Date(), "password"));
     }
 
     public List<User> findAll() {
