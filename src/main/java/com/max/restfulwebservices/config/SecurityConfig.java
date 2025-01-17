@@ -19,7 +19,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers(new AntPathRequestMatcher("/h2-console/**")).permitAll() // ระบุให้ H2 Console ใช้ AntPathRequestMatcher
+                        .requestMatchers(new AntPathRequestMatcher("/h2-console/**"),new AntPathRequestMatcher("/actuator/health"),new AntPathRequestMatcher("/actuator/info")).permitAll() // ระบุให้ H2 Console ใช้ AntPathRequestMatcher
                         .anyRequest().authenticated() // Authentication สำหรับ Endpoint อื่น
                 )
                 .httpBasic(Customizer.withDefaults()); // ใช้ Basic Authentication
@@ -44,3 +44,21 @@ public class SecurityConfig {
         return new InMemoryUserDetailsManager(user);
     }
 }
+
+
+/*
+*
+* @Configuration
+public class SecurityConfig extends WebSecurityConfigurerAdapter {
+
+@Override
+protected void configure(HttpSecurity http) throws Exception {
+http.authorizeRequests()
+.antMatchers("/actuator/health", "/actuator/info").permitAll()
+.antMatchers("/actuator/**").authenticated()
+.and()
+.httpBasic();
+}
+}
+*
+* */

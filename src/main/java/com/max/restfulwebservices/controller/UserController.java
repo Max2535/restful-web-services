@@ -1,8 +1,12 @@
 package com.max.restfulwebservices.controller;
 
+import com.max.restfulwebservices.dto.PostDTO;
+import com.max.restfulwebservices.exception.ResourceNotFoundException;
 import com.max.restfulwebservices.model.User;
 import com.max.restfulwebservices.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -30,13 +34,40 @@ public class UserController {
     }
     */
     @PostMapping
-    public User createUser(@RequestBody User user) {
-        return userRepository.save(user);
+    public ResponseEntity<User> createUser(@RequestBody User user) {
+        User savedUser = userRepository.save(user); // บันทึกผู้ใช้ลงฐานข้อมูล
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedUser); // ส่งกลับข้อมูลพร้อม HTTP 201
     }
 
+
+    //http://localhost:8080/api/v1/users/1
     @GetMapping("/{id}")
-    public User getUserById(@PathVariable Long id) {
-        return userRepository.findById(id).orElse(null);
+    public ResponseEntity<User> getUserById(@PathVariable Long id) {
+        return userRepository.findById(id).map(ResponseEntity::ok)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id " + id));
+    }
+
+    //http://localhost:8080/api/v1/users/1
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+        if (userRepository.existsById(id)) { // ตรวจสอบว่าผู้ใช้มีอยู่หรือไม่
+            userRepository.deleteById(id); // ลบผู้ใช้
+            return ResponseEntity.noContent().build(); // ส่ง HTTP 204
+        }
+        return ResponseEntity.notFound().build(); // ส่ง HTTP 404 ถ้าผู้ใช้ไม่มีอยู่
+    }
+
+    //http://localhost:8080/api/v1/users/1/posts
+    @GetMapping("/{id}/posts")
+    public ResponseEntity<List<PostDTO>> getUserPosts(@PathVariable Long id) {
+        return userRepository.findById(id)
+                .map(user -> {
+                    List<PostDTO> posts = user.getPosts().stream()
+                            .map(post -> new PostDTO(post.getId(), post.getTitle(), post.getContent()))
+                            .toList();
+                    return ResponseEntity.ok(posts);
+                })
+                .orElse(ResponseEntity.notFound().build());
     }
 }
 
